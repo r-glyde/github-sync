@@ -1,4 +1,4 @@
-package github.label.sync
+package github.sync
 
 import cats.effect.{ExitCode, IO, IOApp, Resource, SyncIO}
 import com.monovore.decline.effect.CommandIOApp

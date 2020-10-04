@@ -1,4 +1,4 @@
-package github.label.sync.model
+package github.sync.model
 
 import io.circe.{Decoder, Encoder}
 

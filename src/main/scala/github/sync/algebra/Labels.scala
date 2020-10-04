@@ -1,8 +1,8 @@
-package github.label.sync.algebra
+package github.sync.algebra
 
 import cats.effect.Sync
 import cats.syntax.all._
-import github.label.sync.model.{AppError, Label, Repository}
+import github.sync.model.{AppError, Label, Repository}
 import org.http4s.{Method, Request, Status, Uri}
 import org.http4s.client.Client
 import org.http4s.circe.CirceEntityCodec._

@@ -1,8 +1,8 @@
 package integration
 
 import cats.effect.{Blocker, ContextShift, IO}
-import github.label.sync.algebra.LiveLabels
-import github.label.sync.model.{AppError, Label, Repository}
+import github.sync.algebra.LiveLabels
+import github.sync.model.{AppError, Label, Repository}
 import org.http4s.client.{Client, JavaNetClientBuilder}
 import org.http4s.implicits.http4sLiteralsSyntax
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}

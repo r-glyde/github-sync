@@ -1,9 +1,9 @@
-package github.label.sync
+package github.sync
 
 import cats.Parallel
 import cats.effect.Sync
 import cats.syntax.all._
-import github.label.sync.model.Repository
+import github.sync.model.Repository
 
 class SyncProgram[F[_] : Sync : Printer : Parallel](github: Github[F]) {
 

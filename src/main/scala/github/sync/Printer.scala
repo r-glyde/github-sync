@@ -1,4 +1,4 @@
-package github.label.sync
+package github.sync
 
 import cats.effect.IO
 

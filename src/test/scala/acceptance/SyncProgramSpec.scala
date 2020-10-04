@@ -1,9 +1,9 @@
 package acceptance
 
 import cats.effect.{ContextShift, IO}
-import github.label.sync.algebra.Labels
-import github.label.sync.model.{Label, Repository}
-import github.label.sync.{Github, Printer, SyncProgram}
+import github.sync.algebra.Labels
+import github.sync.model.{Label, Repository}
+import github.sync.{Github, Printer, SyncProgram}
 import org.scalatest.FutureOutcome
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks

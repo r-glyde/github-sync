@@ -1,6 +1,6 @@
-package github.label
+package github
 
-import github.label.sync.model.{Label, Tasks}
+import github.sync.model.{Label, Tasks}
 import org.http4s.util.CaseInsensitiveString
 
 package object sync {

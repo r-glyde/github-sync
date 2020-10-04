@@ -1,8 +1,8 @@
 package unit
 
 import com.danielasfregola.randomdatagenerator.magnolia.RandomDataGenerator
-import github.label.sync.generateTasks
-import github.label.sync.model.Label
+import github.sync.generateTasks
+import github.sync.model.Label
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks

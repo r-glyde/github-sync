@@ -1,9 +1,9 @@
-package github.label.sync
+package github.sync
 
 import cats.data.Validated.{invalidNel, valid}
 import cats.syntax.all._
 import com.monovore.decline.Opts
-import github.label.sync.model.Repository
+import github.sync.model.Repository
 
 final case class Config(
     token: String,

@@ -1,7 +1,7 @@
-package github.label.sync.model
+package github.sync.model
 
 import cats.Show
-import cats.implicits.showInterpolator
+import cats.syntax.show._
 
 final case class Tasks(toCreate: List[Label], toUpdate: List[Label], toDelete: List[String])
 

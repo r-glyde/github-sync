@@ -1,6 +1,6 @@
-package github.label.sync.model
+package github.sync.model
 
-import cats.implicits.catsSyntaxEitherId
+import cats.syntax.either._
 
 final case class Repository(owner: String, name: String) {
   val fullname: String = s"$owner/$name"

@@ -1,7 +1,7 @@
-package github.label.sync
+package github.sync
 
 import cats.effect.Sync
-import github.label.sync.algebra.{Labels, LiveLabels}
+import github.sync.algebra.{Labels, LiveLabels}
 import org.http4s.Credentials.Token
 import org.http4s.Headers
 import org.http4s.client.{Client => Http4sClient}

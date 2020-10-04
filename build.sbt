@@ -4,7 +4,6 @@ scalaVersion := "2.13.3"
 
 enablePlugins(BuildInfoPlugin, NativeImagePlugin)
 
-// remove to get a surprise ;)
 nativeImageReady := { () =>
   ()
 }
@@ -18,7 +17,7 @@ nativeImageOptions ++= Seq(
   "--enable-all-security-services"
 )
 
-buildInfoPackage := "github.label.sync"
+buildInfoPackage := "github.sync"
 buildInfoKeys := Seq[BuildInfoKey](name, "description" -> "synchronise labels between github repositories")
 
 libraryDependencies ++= Seq(
