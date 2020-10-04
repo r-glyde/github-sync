@@ -2,6 +2,9 @@
 
 Synchronise labels between a source and target repository
 
+The latest release can be found and downloaded from [here](https://github.com/r-glyde/github-sync/releases/latest).
+For now, this has only been tested on a Mac running Mojave so good luck!
+
 ```
 Usage: github-sync --token <string> --source <repository> --target <repository> [--delete] [--dry-run] [--verbose]
 
