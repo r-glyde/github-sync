@@ -24,10 +24,7 @@ object Config {
   private val repoOpts: String => Opts[Repository] = str =>
     Opts
       .option[String](metavar = "repository", long = str, help = s"$str repository as owner/repo")
-      .mapValidated(Repository.fromString(_) match {
-        case Right(repo) => valid(repo)
-        case Left(error) => invalidNel(error)
-      })
+      .mapValidated(Repository.fromString(_).toValidatedNel)
 
   private val deleteAdditional: Opts[Boolean] =
     Opts.flag(long = "delete", help = "delete additional labels not found in source repository").orFalse
