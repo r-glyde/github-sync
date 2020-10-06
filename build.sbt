@@ -2,7 +2,7 @@ name := "github-sync"
 version := "0.1"
 scalaVersion := "2.13.3"
 
-enablePlugins(BuildInfoPlugin, NativeImagePlugin)
+enablePlugins(NativeImagePlugin)
 
 nativeImageReady := { () =>
   ()
@@ -16,9 +16,6 @@ nativeImageOptions ++= Seq(
   "--enable-all-security-services",
   // "--static" not supported on mac
 )
-
-buildInfoPackage := "github.sync"
-buildInfoKeys := Seq[BuildInfoKey](name, "description" -> "synchronise labels between github repositories")
 
 libraryDependencies ++= Seq(
   "org.http4s"             %% "http4s-blaze-client"            % "0.21.7",
