@@ -17,29 +17,32 @@ trait Labels[F[_]] {
 }
 
 final class LiveLabels[F[_] : Sync](client: Client[F], baseUrl: Uri) extends Labels[F] {
+
+  private val labelsUri = (repo: Repository) => baseUrl / "repos" / repo.owner / repo.name / "labels"
+
   override def getAll(repo: Repository): F[List[Label]] =
-    client.get(baseUrl / "repos" / repo.owner / repo.name / "labels") { res =>
+    client.get(labelsUri(repo)) { res =>
       if (res.status.isSuccess) res.as[List[Label]]
       else Sync[F].raiseError(AppError(s"Failed to get labels in '${repo.fullname}': ${res.status.reason}"))
     }
 
   override def create(repo: Repository, label: Label): F[Unit] =
     Request[F](Method.POST)
-      .withUri(baseUrl / "repos" / repo.owner / repo.name / "labels")
+      .withUri(labelsUri(repo))
       .withEntity(label)
       .pipe(client.status)
       .flatMap(handleError(_, repo, label.name, "create"))
 
   override def update(repo: Repository, label: Label): F[Unit] =
     Request[F](Method.PATCH)
-      .withUri(baseUrl / "repos" / repo.owner / repo.name / "labels" / label.name)
+      .withUri(labelsUri(repo) / label.name)
       .withEntity(label)
       .pipe(client.status)
       .flatMap(handleError(_, repo, label.name, "update"))
 
   override def delete(repo: Repository, name: String): F[Unit] =
     Request[F](Method.DELETE)
-      .withUri(baseUrl / "repos" / repo.owner / repo.name / "labels" / name)
+      .withUri(labelsUri(repo) / name)
       .pipe(client.status)
       .flatMap(handleError(_, repo, name, "delete"))
 

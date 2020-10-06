@@ -8,13 +8,13 @@ nativeImageReady := { () =>
   ()
 }
 nativeImageOptions ++= Seq(
-  "-H:+ReportExceptionStackTraces",
   "--allow-incomplete-classpath",
   "--no-fallback",
   "--initialize-at-build-time",
   "--enable-http",
   "--enable-https",
-  "--enable-all-security-services"
+  "--enable-all-security-services",
+  // "--static" not supported on mac
 )
 
 buildInfoPackage := "github.sync"
