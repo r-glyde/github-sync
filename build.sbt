@@ -2,20 +2,27 @@ name := "github-sync"
 version := "0.1"
 scalaVersion := "2.13.3"
 
+scalacOptions ++= Seq(
+  "-target:11",
+  "-language:higherKinds"
+)
+
 enablePlugins(NativeImagePlugin)
 
-nativeImageReady := { () =>
-  ()
-}
-nativeImageOptions ++= Seq(
+val nativeImageSettings = Seq(
   "--allow-incomplete-classpath",
   "--no-fallback",
   "--initialize-at-build-time",
   "--enable-http",
   "--enable-https",
   "--enable-all-security-services",
-  // "--static" not supported on mac
+  "--initialize-at-build-time=scala.runtime.Statics$VM"
 )
+
+nativeImageReady := { () =>
+  ()
+}
+nativeImageOptions ++= nativeImageSettings
 
 libraryDependencies ++= Seq(
   "org.http4s"             %% "http4s-blaze-client"            % "0.21.7",
@@ -32,3 +39,39 @@ libraryDependencies ++= Seq(
   "com.danielasfregola"    %% "random-data-generator-magnolia" % "2.9" % Test,
   "com.github.tomakehurst" % "wiremock-jre8-standalone"        % "2.27.2" % Test
 )
+
+lazy val staticNativeImage =
+  taskKey[File]("Build a standalone Linux executable using GraalVM Native Image")
+
+staticNativeImage := {
+  import sbt.Keys.streams
+  import scala.sys.process._
+  val assemblyFatJar     = assembly.value
+  val assemblyFatJarPath = assemblyFatJar.getParent
+  val assemblyFatJarName = assemblyFatJar.getName
+  val outputPath         = (baseDirectory.value / "target" / "native-image").getAbsolutePath
+  val outputName         = name.value
+  val nativeImageDocker  = "glyderj/native-image:20.2.0-java11"
+
+  val cmd =
+    s"""docker run
+       | --volume $assemblyFatJarPath:/opt/assembly
+       | --volume $outputPath:/opt/native-image
+       | $nativeImageDocker
+       | --static
+       | --libc=musl
+       | ${nativeImageSettings.mkString(" ")}
+       | -jar /opt/assembly/$assemblyFatJarName
+       | $outputName.out""".stripMargin.filter(_ != '\n')
+
+  val log = streams.value.log
+  log.info(s"Building native image from $assemblyFatJarName")
+  log.info(cmd)
+
+  val result = cmd ! log
+  if (result == 0) file(s"$outputPath/$outputName")
+  else {
+    log.error(s"Native image command failed:\n $cmd")
+    throw new Exception("Native image command failed")
+  }
+}
