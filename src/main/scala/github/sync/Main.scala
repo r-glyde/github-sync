@@ -1,5 +1,7 @@
 package github.sync
 
+import cats.data.Validated
+import cats.syntax.all._
 import cats.effect.{ExitCode, IO, IOApp, Resource, SyncIO}
 import com.monovore.decline.effect.CommandIOApp
 import com.monovore.decline.{Command, Opts}
@@ -19,16 +21,22 @@ object Main extends IOApp.WithContext {
   override protected def executionContextResource: Resource[SyncIO, ExecutionContext] = Resource.liftF(SyncIO(ec))
 
   private def main: Opts[IO[ExitCode]] =
-    Config.opts.map { case Config(token, source, target, deleteAdditional, dryRun, isVerbose) =>
+    Config.opts.map { case Config(token, source, targets, deleteAdditional, dryRun, isVerbose) =>
       BlazeClientBuilder[IO](ec).resource.use { client =>
         val configuredClient = if (isVerbose) Logger(logHeaders = false, logBody = false)(client) else client
         val github           = new GithubClient[IO](configuredClient, token)
         val program          = new SyncProgram[IO](github)
 
-        program
-          .syncLabels(source, target, deleteAdditional, dryRun)
-          .as(ExitCode.Success)
-          .handleErrorWith(e => Printer[IO].putStrLn(s"Something went wrong: ${e.getMessage}") as ExitCode.Error)
+        targets
+          .traverse(program.syncLabels(source, _, deleteAdditional, dryRun).attempt.map(_.toValidatedNec))
+          .map(_.sequence)
+          .flatMap {
+            case Validated.Valid(_)        => ExitCode.Success.pure[IO]
+            case Validated.Invalid(errors) =>
+              errors
+                .traverse(e => Printer[IO].putStrLn(s"Something went wrong: ${e.getMessage}"))
+                .as(ExitCode.Error)
+          }
       }
     }
 

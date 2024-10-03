@@ -1,6 +1,6 @@
 package github.sync
 
-import cats.data.Validated.{invalidNel, valid}
+import cats.data.NonEmptyList
 import cats.syntax.all._
 import com.monovore.decline.Opts
 import github.sync.model.Repository
@@ -8,7 +8,7 @@ import github.sync.model.Repository
 final case class Config(
     token: String,
     source: Repository,
-    target: Repository,
+    target: NonEmptyList[Repository],
     deleteAdditional: Boolean,
     dryRun: Boolean,
     verbose: Boolean
@@ -21,10 +21,15 @@ object Config {
       help = s"personal access token with permissions for source and target repositories"
     )
 
-  private val repoOpts: String => Opts[Repository] = str =>
+  private val sourceRepoOpts: Opts[Repository] =
     Opts
-      .option[String](metavar = "repository", long = str, help = s"$str repository as owner/repo")
+      .option[String](metavar = "repository", long = "source", help = "source repository as owner/repo")
       .mapValidated(Repository.fromString(_).toValidatedNel)
+
+  private val targetRepoOpts: Opts[NonEmptyList[Repository]] =
+    Opts
+      .options[String](metavar = "repository", long = "target", help = "target repository as owner/repo")
+      .mapValidated(_.traverse(Repository.fromString(_).toValidatedNel))
 
   private val deleteAdditional: Opts[Boolean] =
     Opts.flag(long = "delete", help = "delete additional labels not found in source repository").orFalse
@@ -36,6 +41,6 @@ object Config {
     Opts.flag(long = "verbose", help = "show logging of http requests").orFalse
 
   val opts: Opts[Config] =
-    (tokenOpts, repoOpts("source"), repoOpts("target"), deleteAdditional, dryRun, verbosity).mapN(Config.apply)
+    (tokenOpts, sourceRepoOpts, targetRepoOpts, deleteAdditional, dryRun, verbosity).mapN(Config.apply)
 
 }
