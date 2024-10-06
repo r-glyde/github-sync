@@ -6,6 +6,7 @@ import github.sync.model.Label
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import org.typelevel.ci.testing.arbitraries._
 
 class SyncPackageSpec extends AnyWordSpecLike with Matchers with ScalaCheckPropertyChecks with RandomDataGenerator {
 
@@ -52,7 +53,7 @@ class SyncPackageSpec extends AnyWordSpecLike with Matchers with ScalaCheckPrope
         val target = _target.distinctBy(_.name)
 
         val output          = generateTasks(source, target, deleteAdditional = true)
-        val expectedDeletes = target.map(_.name) diff source.map(_.name)
+        val expectedDeletes = (target.map(_.name) diff source.map(_.name)).map(_.toString)
 
         output.toDelete should contain theSameElementsAs expectedDeletes
       }
