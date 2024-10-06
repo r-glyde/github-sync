@@ -23,6 +23,8 @@ libraryDependencies ++= Seq(
   "io.circe"               %% "circe-core"                     % "0.13.0",
   "org.typelevel"          %% "cats-effect"                    % "2.2.0",
   "org.typelevel"          %% "cats-core"                      % "2.2.0",
+  "org.typelevel"          %% "case-insensitive"               % "1.4.0",
+  "org.typelevel"          %% "case-insensitive-testing"       % "1.4.0",
   "com.monovore"           %% "decline"                        % "1.3.0",
   "com.monovore"           %% "decline-effect"                 % "1.3.0",
   "ch.qos.logback"         % "logback-classic"                 % "1.2.3",

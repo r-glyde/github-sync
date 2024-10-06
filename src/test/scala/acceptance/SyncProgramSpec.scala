@@ -8,6 +8,7 @@ import org.scalatest.FutureOutcome
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.FixtureAsyncWordSpecLike
+import org.typelevel.ci.CIString
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext
@@ -34,8 +35,8 @@ class SyncProgramSpec extends FixtureAsyncWordSpecLike with Matchers with TableD
       program
         .syncLabels(source, target, deleteAdditional = true, dryRun = false)
         .map { _ =>
-          creates shouldBe List(Label("b", "red", None))
-          updates shouldBe List(Label("a", "blue", None))
+          creates shouldBe List(Label(CIString("b"), "red", None))
+          updates shouldBe List(Label(CIString("a"), "blue", None))
           deletes shouldBe List("c")
           printed should not contain "No actions taken"
         }
@@ -81,8 +82,9 @@ class SyncProgramSpec extends FixtureAsyncWordSpecLike with Matchers with TableD
   }
 
   class TestContext {
-    private val sourceLabels: List[Label] = List(Label("a", "blue", None), Label("b", "red", None))
-    private val targetLabels: List[Label] = List(Label("a", "yellow", None), Label("c", "green", None))
+    private val sourceLabels: List[Label] = List(Label(CIString("a"), "blue", None), Label(CIString("b"), "red", None))
+    private val targetLabels: List[Label] =
+      List(Label(CIString("a"), "yellow", None), Label(CIString("c"), "green", None))
 
     val printed: ListBuffer[String] = ListBuffer.empty
     val creates: ListBuffer[Label]  = ListBuffer.empty

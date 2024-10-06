@@ -8,6 +8,7 @@ import org.http4s.implicits.http4sLiteralsSyntax
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpecLike
+import org.typelevel.ci.CIString
 
 import scala.concurrent.ExecutionContext
 
@@ -28,7 +29,7 @@ class LiveLabelsSpec
 
   val source: Repository = Repository("test", "source")
   val rootUrl: String    = s"/repos/${source.owner}/${source.name}/labels"
-  val label: Label       = Label("bug", "f29513", Some("Something isn't working"))
+  val label: Label       = Label(CIString("bug"), "f29513", Some("Something isn't working"))
 
   "getAll" should {
     val getAllBody =
@@ -60,8 +61,8 @@ class LiveLabelsSpec
       labels
         .getAll(source)
         .map {
-          _ should contain theSameElementsAs List(Label("bug", "f29513", Some("Something isn't working")),
-                                                  Label("enhancement", "a2eeef", Some("New feature or request")))
+          _ should contain theSameElementsAs List(Label(CIString("bug"), "f29513", Some("Something isn't working")),
+                                                  Label(CIString("enhancement"), "a2eeef", Some("New feature or request")))
         }
         .unsafeToFuture()
     }
@@ -170,14 +171,14 @@ class LiveLabelsSpec
     "successfully delete a label and return unit" in {
       stubDeleteEndpoint(204, s"$rootUrl/${label.name}")
 
-      labels.delete(source, label.name).map(_ shouldBe ()).unsafeToFuture()
+      labels.delete(source, label.name.toString).map(_ shouldBe ()).unsafeToFuture()
     }
 
     "raise exception if unsuccessful request" in {
       stubDeleteEndpoint(500, s"$rootUrl/${label.name}")
 
       recoverToExceptionIf[AppError] {
-        labels.delete(source, label.name).unsafeToFuture()
+        labels.delete(source, label.name.toString).unsafeToFuture()
       }.map(_.msg should include regex s"delete.*${source.fullname}")
     }
 

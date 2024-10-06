@@ -1,7 +1,7 @@
 package github.sync.model
 
 import cats.Show
-import cats.syntax.show._
+import cats.syntax.all._
 
 final case class Tasks(toCreate: List[Label], toUpdate: List[Label], toDelete: List[String])
 
@@ -14,6 +14,6 @@ object Tasks {
           |""".stripMargin
   }
 
-  private implicit val showList: Show[List[String]] = _.mkString("[ ", ", ", " ]")
+  private implicit def showList[T: Show]: Show[List[T]] = _.mkString_("[ ", ", ", " ]")
 
 }
