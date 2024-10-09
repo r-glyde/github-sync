@@ -7,13 +7,11 @@ enablePlugins(NativeImagePlugin)
 nativeImageReady := { () =>
   ()
 }
+nativeImageVersion := "22.3.1"
 nativeImageOptions ++= Seq(
-  "--allow-incomplete-classpath",
   "--no-fallback",
-  "--initialize-at-build-time",
   "--enable-http",
-  "--enable-https",
-  "--enable-all-security-services",
+  "--enable-https"
   // "--static" not supported on mac
 )
 
