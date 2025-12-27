@@ -13,7 +13,7 @@ package object sync {
     val toUpdate = sourceByName -- toCreate.keySet
     val toDelete = if (deleteAdditional) (targetByName.keySet -- sourceByName.keySet).toList else List.empty
 
-    Tasks(toCreate.values.toList, toUpdate.values.toList, toDelete)
+    Tasks(toCreate.values.toList, toUpdate.values.toList, toDelete.map(_.toString))
   }
 
   implicit class StringOps(val self: String) extends AnyVal {

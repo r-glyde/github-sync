@@ -31,14 +31,14 @@ final class LiveLabels[F[_] : Sync](client: Client[F], baseUrl: Uri) extends Lab
       .withUri(labelsUri(repo))
       .withEntity(label)
       .pipe(client.status)
-      .flatMap(handleError(_, repo, label.name, "create"))
+      .flatMap(handleError(_, repo, label.name.toString, "create"))
 
   override def update(repo: Repository, label: Label): F[Unit] =
     Request[F](Method.PATCH)
-      .withUri(labelsUri(repo) / label.name)
+      .withUri(labelsUri(repo) / label.name.toString)
       .withEntity(label)
       .pipe(client.status)
-      .flatMap(handleError(_, repo, label.name, "update"))
+      .flatMap(handleError(_, repo, label.name.toString, "update"))
 
   override def delete(repo: Repository, name: String): F[Unit] =
     Request[F](Method.DELETE)
