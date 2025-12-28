@@ -1,6 +1,7 @@
 package acceptance
 
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
+import cats.effect.unsafe.IORuntime
 import github.sync.algebra.Labels
 import github.sync.model.{Label, Repository}
 import github.sync.{Github, Printer, SyncProgram}
@@ -17,11 +18,11 @@ import scala.concurrent.ExecutionContext
 class SyncProgramSpec extends FixtureAsyncWordSpecLike with Matchers with TableDrivenPropertyChecks {
 
   override implicit val executionContext: ExecutionContext = ExecutionContext.global
-  implicit val contextShift: ContextShift[IO]              = IO.contextShift(executionContext)
+  implicit val runtime: IORuntime                          = IORuntime.global
 
   type FixtureParam = TestContext
 
-  override def withFixture(test: OneArgAsyncTest): FutureOutcome = test { new TestContext() }
+  override def withFixture(test: OneArgAsyncTest): FutureOutcome = test(new TestContext())
 
   val source: Repository = Repository("test", "source")
   val target: Repository = Repository("test", "target")
@@ -91,18 +92,18 @@ class SyncProgramSpec extends FixtureAsyncWordSpecLike with Matchers with TableD
     val updates: ListBuffer[Label]  = ListBuffer.empty
     val deletes: ListBuffer[String] = ListBuffer.empty
 
-    implicit val testPrinter: Printer[IO] = str => IO { printed += str }.void
+    implicit val testPrinter: Printer[IO] = str => IO(printed += str).void
 
     val github: Github[IO] = new Github[IO] {
       override val labels: Labels[IO] = new Labels[IO] {
-        override def getAll(repo: Repository): IO[List[Label]] = repo match {
+        override def getAll(repo: Repository): IO[List[Label]]        = repo match {
           case `source` => IO.pure(sourceLabels)
           case `target` => IO.pure(targetLabels)
           case _        => IO.raiseError(new Exception(s"$repo not found"))
         }
-        override def create(repo: Repository, label: Label): IO[Unit] = IO { creates += label }.void
-        override def update(repo: Repository, label: Label): IO[Unit] = IO { updates += label }.void
-        override def delete(repo: Repository, name: String): IO[Unit] = IO { deletes += name }.void
+        override def create(repo: Repository, label: Label): IO[Unit] = IO(creates += label).void
+        override def update(repo: Repository, label: Label): IO[Unit] = IO(updates += label).void
+        override def delete(repo: Repository, name: String): IO[Unit] = IO(deletes += name).void
       }
     }
   }

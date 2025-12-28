@@ -15,9 +15,4 @@ package object sync {
 
     Tasks(toCreate.values.toList, toUpdate.values.toList, toDelete.map(_.toString))
   }
-
-  implicit class StringOps(val self: String) extends AnyVal {
-    def ci: CaseInsensitiveString = CaseInsensitiveString(self)
-  }
-
 }
