@@ -1,6 +1,6 @@
 package github.sync.algebra
 
-import cats.effect.Sync
+import cats.effect.Async
 import cats.syntax.all._
 import github.sync.model.{AppError, Label, Repository}
 import org.http4s.{Method, Request, Status, Uri}
@@ -16,14 +16,14 @@ trait Labels[F[_]] {
   def delete(repo: Repository, name: String): F[Unit]
 }
 
-final class LiveLabels[F[_] : Sync](client: Client[F], baseUrl: Uri) extends Labels[F] {
+final class LiveLabels[F[_] : Async](client: Client[F], baseUrl: Uri) extends Labels[F] {
 
   private val labelsUri = (repo: Repository) => baseUrl / "repos" / repo.owner / repo.name / "labels"
 
   override def getAll(repo: Repository): F[List[Label]] =
     client.get(labelsUri(repo)) { res =>
       if (res.status.isSuccess) res.as[List[Label]]
-      else Sync[F].raiseError(AppError(s"Failed to get labels in '${repo.fullname}': ${res.status.reason}"))
+      else Async[F].raiseError(AppError(s"Failed to get labels in '${repo.fullname}': ${res.status.reason}"))
     }
 
   override def create(repo: Repository, label: Label): F[Unit] =
@@ -47,6 +47,6 @@ final class LiveLabels[F[_] : Sync](client: Client[F], baseUrl: Uri) extends Lab
       .flatMap(handleError(_, repo, name, "delete"))
 
   private def handleError(status: Status, repo: Repository, label: String, mode: String): F[Unit] =
-    if (status.isSuccess) Sync[F].unit
-    else Sync[F].raiseError(AppError(s"Failed to $mode '$label' in '${repo.fullname}': ${status.reason}"))
+    if (status.isSuccess) Async[F].unit
+    else Async[F].raiseError(AppError(s"Failed to $mode '$label' in '${repo.fullname}': ${status.reason}"))
 }

@@ -1,13 +1,14 @@
 package integration
 
-import cats.effect.{Blocker, ContextShift, IO}
+import cats.effect.IO
+import cats.effect.unsafe.IORuntime
 import github.sync.algebra.LiveLabels
 import github.sync.model.{AppError, Label, Repository}
 import org.http4s.client.{Client, JavaNetClientBuilder}
 import org.http4s.implicits.http4sLiteralsSyntax
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpecLike
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.typelevel.ci.CIString
 
 import scala.concurrent.ExecutionContext
@@ -20,12 +21,10 @@ class LiveLabelsSpec
     with Matchers {
 
   override implicit val executionContext: ExecutionContext = ExecutionContext.global
-  implicit val contextShift: ContextShift[IO]              = IO.contextShift(executionContext)
+  implicit val runtime: IORuntime                          = IORuntime.global
 
-  val blocker: Blocker   = Blocker.liftExecutionContext(executionContext)
-  val client: Client[IO] = JavaNetClientBuilder[IO](blocker).create
-
-  val labels = new LiveLabels[IO](client, uri"http://localhost:8080")
+  val client: Client[IO]     = JavaNetClientBuilder[IO].create
+  val labels: LiveLabels[IO] = new LiveLabels[IO](client, uri"http://localhost:8080")
 
   val source: Repository = Repository("test", "source")
   val rootUrl: String    = s"/repos/${source.owner}/${source.name}/labels"
@@ -61,8 +60,10 @@ class LiveLabelsSpec
       labels
         .getAll(source)
         .map {
-          _ should contain theSameElementsAs List(Label(CIString("bug"), "f29513", Some("Something isn't working")),
-                                                  Label(CIString("enhancement"), "a2eeef", Some("New feature or request")))
+          _ should contain theSameElementsAs List(
+            Label(CIString("bug"), "f29513", Some("Something isn't working")),
+            Label(CIString("enhancement"), "a2eeef", Some("New feature or request"))
+          )
         }
         .unsafeToFuture()
     }

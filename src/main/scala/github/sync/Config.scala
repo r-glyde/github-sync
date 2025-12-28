@@ -18,7 +18,7 @@ object Config {
   private val tokenOpts: Opts[String] =
     Opts.option[String](
       long = "token",
-      help = s"personal access token with permissions for source and target repositories"
+      help = s"personal access token with issue/pr permissions for source and target repositories"
     )
 
   private val sourceRepoOpts: Opts[Repository] =
